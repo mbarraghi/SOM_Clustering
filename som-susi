@@ -1,0 +1,23 @@
+pip install susi
+import numpy as np 
+import pandas as pd 
+import keras 
+from keras.utils import to_categorical 
+from keras.datasets import mnist
+import matplotlib.pyplot as plt
+import susi
+
+
+(train_images , train_labels), (test_images , test_labels) = mnist.load_data()
+
+train_images = train_images.astype('float32') / 255
+x_train= train_images[:40000]
+x_train = x_train.reshape((40000,28*28))
+
+som = susi.SOMClustering()
+x_t = som.fit_transform(x_train)
+
+umat = som.get_u_matrix()
+plt.imshow(np.squeeze(umat))
+bmulist= som.get_bmus(x_train)
+plt.hist2d([x[0] for x in bmulist],[x[1] for x in bmulist])
