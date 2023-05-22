@@ -1,0 +1,49 @@
+import numpy as np 
+import pandas as pd 
+import keras 
+from keras.utils import to_categorical 
+from keras.datasets import mnist
+import matplotlib.pyplot as plt
+import numpy as np 
+import pandas as pd 
+import seaborn as sns
+from imageio import imwrite
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.cbook import get_sample_data
+import random
+%matplotlib inline
+from sklearn.preprocessing import StandardScaler
+from PIL import Image, ImageChops
+
+np.random.seed(0)
+
+# get part of the dataset
+train = pd.read_csv('../input/mnist-in-csv/mnist_train.csv')
+train = train.sample(n=40000, random_state=0)
+labels = train['label']
+train = train.drop("label",axis=1)
+
+test = pd.read_csv('../input/mnist-in-csv/mnist_train.csv')
+test = test.sample(n=2000, random_state=0)
+tlabels = test['label']
+test = test.drop("label",axis=1)
+
+# check distribution
+sns.countplot(labels)
+
+# standardization of a dataset
+train_st = StandardScaler().fit_transform(train.values)
+
+import susi
+som = susi.SOMClassifier(n_rows=20,n_columns=20,n_iter_unsupervised=1000,n_iter_supervised=1000,random_state=0)
+som.fit(train_st, labels)
+
+tuples = som.fit_transform(train_st,labels)
+y_pred = som.predict(test)
+print("Accuracy: {0:.1f} %".format(som.score(test,tlabels)*100))
+
+estimation_map = som.get_estimation_map().squeeze()
+plot_estimation_map(estimation_map)
+plt.show()
